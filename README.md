@@ -174,9 +174,4 @@ curl -X POST https://example.com/wp-json/ssw/v1/update-stock \
 Если у вас возникли вопросы или проблемы, вы можете обратиться за поддержкой:
 
 - Автор: Alex Kovalev
-- Email: alex.kovalevv@gmail.com
 - Telegram: @alex_kovalevv
-- Сайт: [https://alexkovalev.pro](https://alexkovalev.pro)
-
----
-[https://www.gnu.org/licenses/gpl-2.0.html](https://www.gnu.org/licenses/gpl-2.0.html).

@@ -6,6 +6,11 @@
  * @version 1.0
  */
 
+// Exit if accessed directly
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
+
 require 'vendor/autoload.php';
 
 use PhpOffice\PhpSpreadsheet\IOFactory;
@@ -22,20 +27,15 @@ function ssw_parse_xls_file( $file_path ) {
 
 			// Поля, которые мы ищем
 			$required_columns = [
-				'Код',
 				'Артикул',
 				'Наименование',
-				'Общий остаток, он отображается в карточке товара',
 				'Магазин Горького 35, можно забрать сейчас',
 				'Основной склад, заказать самовывоз на следующий день после 16:00 (кроме воскресенья)'
 			];
 
 			// Поля для новой структуры
 			$english_keys = [
-				'Код'                                                                                  => 'code',
 				'Артикул'                                                                              => 'article',
-				'Наименование'                                                                         => 'name',
-				'Общий остаток, он отображается в карточке товара'                                     => 'total_stock',
 				'Магазин Горького 35, можно забрать сейчас'                                            => 'available_in_gorkogo',
 				'Основной склад, заказать самовывоз на следующий день после 16:00 (кроме воскресенья)' => 'available_in_main_stock_next_day',
 			];
@@ -119,29 +119,24 @@ function ssw_insert_data_into_database( $data ) {
 		$wpdb->insert(
 			$table_name,
 			[
-				'code'                             => $row['code'],
 				'article'                          => $row['article'],
-				'name'                             => $row['name'],
-				'total_stock'                      => $row['total_stock'],
 				'available_in_gorkogo'             => $row['available_in_gorkogo'],
 				'available_in_main_stock_next_day' => $row['available_in_main_stock_next_day'],
-				'created_at'                       => current_time( 'mysql' ) // Вставляем текущую дату и время
+				'created_at'                       => current_time( 'mysql' ),
+				'updated_at'                       => current_time( 'mysql' )
 			],
 			[
 				'%s',
-				'%s',
-				'%s',
 				'%d',
 				'%d',
-				'%d',
-				'%s' // Типы данных для значений
+				'%s'
 			]
 		);
 
 		if ( $wpdb->last_error ) {
 			echo "Ошибка при вставке данных: " . $wpdb->last_error . "<br>";
 		} else {
-			echo "Данные успешно вставлены! Код: {$row['code']}, Артикул: {$row['article']}<br>";
+			echo "Данные успешно вставлены!, Артикул: {$row['article']}<br>";
 		}
 	}
 }

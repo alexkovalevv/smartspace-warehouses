@@ -12,6 +12,11 @@
  * License URI: https://www.gnu.org/licenses/gpl-2.0.html
  **/
 
+// Exit if accessed directly
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
+
 define( 'SSW_PLUGIN_VERSION', '1.0.0' );
 define( 'SSW_REST_API_SECRET', 'secret' ); // Заменить на свой
 define( 'SSW_PLUGIN_FILE', __FILE__ );

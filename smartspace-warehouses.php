@@ -18,7 +18,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 define( 'SSW_PLUGIN_VERSION', '1.0.0' );
-define( 'SSW_REST_API_SECRET', 'secret' ); // Заменить на свой
+define( 'SSW_REST_API_SECRET', '' ); // Заменить на свой
 define( 'SSW_PLUGIN_FILE', __FILE__ );
 define( 'SSW_PLUGIN_BASENAME', plugin_basename( __FILE__ ) );
 define( 'SSW_PLUGIN_SLUG', dirname( plugin_basename( __FILE__ ) ) );

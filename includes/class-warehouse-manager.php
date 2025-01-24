@@ -16,28 +16,28 @@ class SSW_WarehouseManager {
 	 *
 	 * @var SSW_DatabaseHandler
 	 */
-	private $database_handler;
+	private SSW_DatabaseHandler $database_handler;
 
 	/**
 	 * Класс для отображения информации о складских остатках на странице продукта.
 	 *
 	 * @var SSW_StockDisplay
 	 */
-	private $stock_display;
+	private SSW_StockDisplay $stock_display;
 
 	/**
 	 * Обработчик REST API, отвечает за обновление складских остатков через API.
 	 *
 	 * @var SSW_RestAPIHandler
 	 */
-	private $rest_api_handler;
+	private SSW_RestAPIHandler $rest_api_handler;
 
 	/**
 	 * Импортёр данных из файлов (например, XLS), используется для тестового импорта.
 	 *
 	 * @var SSW_FileImporter
 	 */
-	private $file_importer;
+	private SSW_FileImporter $file_importer;
 
 	/**
 	 * Конструктор класса.
@@ -88,8 +88,9 @@ class SSW_WarehouseManager {
 		if ( isset( $_GET['import-warehouse-test-data'] ) && current_user_can( 'manage_options' ) ) {
 			if ( ! $this->database_handler->check_table_exists() ) {
 				$this->database_handler->delete_table();
-				$this->database_handler->create_table();
 			}
+
+			$this->database_handler->create_table();
 
 			$data = $this->file_importer->parse_xls_file( SSW_PLUGIN_DIR . '/test-data.xls' );
 

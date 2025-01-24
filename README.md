@@ -29,9 +29,9 @@
 | Параметр                                   | Тип     | Описание                                                                        | Обязательность |
 |--------------------------------------------|---------|---------------------------------------------------------------------------------|----------------|
 | `items`                                    | array   | Список товаров с соответствующими параметрами.                                  | Обязательно    |
-| `items[].article`                          | string  | Артикул товара (SKU).                                                           | Обязательно    |
+| `items[].sku`                          | string  | Артикул товара (SKU).                                                           | Обязательно    |
 | `items[].available_in_gorkogo`             | integer | Количество товара в магазине на улице Горького.                                 | Обязательно    |
-| `items[].available_in_main_stock_next_day` | integer | Количество товара, доступного на основном складе (самовывоз на следующий день). | Обязательно    |
+| `items[].available_in_main_stock` | integer | Количество товара, доступного на основном складе (самовывоз на следующий день). | Обязательно    |
 | `secret_key`                               | string  | Секретный ключ API для проверки подлинности запроса.                            | Обязательно    |
 
 ---
@@ -47,14 +47,14 @@ curl -X POST https://example.com/wp-json/ssw/v1/update-stock \
   "secret_key": "your_generated_api_key_here",
   "items": [
     {
-      "article": "SKU123",
+      "sku": "SKU123",
       "available_in_gorkogo": 20,
-      "available_in_main_stock_next_day": 30
+      "available_in_main_stock": 30
     },
     {
-      "article": "SKU456",
+      "sku": "SKU456",
       "available_in_gorkogo": 10,
-      "available_in_main_stock_next_day": 15
+      "available_in_main_stock": 15
     }
   ]
 }'
@@ -77,11 +77,11 @@ curl -X POST https://example.com/wp-json/ssw/v1/update-stock \
   "messages": {
     "successes": [
       {
-        "article": "SKU123",
+        "sku": "SKU123",
         "message": "Новый товар успешно добавлен."
       },
       {
-        "article": "SKU456",
+        "sku": "SKU456",
         "message": "Данные о товаре успешно обновлены."
       }
     ],
@@ -102,14 +102,14 @@ curl -X POST https://example.com/wp-json/ssw/v1/update-stock \
   "messages": {
     "successes": [
       {
-        "article": "SKU123",
+        "sku": "SKU123",
         "message": "Новый товар успешно добавлен."
       }
     ],
     "errors": [
       {
-        "article": "SKU789",
-        "message": "Отсутствуют обязательные параметры: артикул, available_in_gorkogo или available_in_main_stock_next_day."
+        "sku": "SKU789",
+        "message": "Отсутствуют обязательные параметры: артикул, available_in_gorkogo или available_in_main_stock."
       }
     ]
   }
@@ -149,11 +149,11 @@ curl -X POST https://example.com/wp-json/ssw/v1/update-stock \
    Если ключ отсутствует или неверен, возвращается ошибка с кодом `401 Unauthorized`.
 
 2. **Обновление данных:**
-   Если запись с артикулом (`article`) уже существует, ее данные обновляются согласно переданным параметрам.
+   Если запись с артикулом (`sku`) уже существует, ее данные обновляются согласно переданным параметрам.
 
 3. **Добавление новых записей:**
    Если запись с переданным артикулом отсутствует, она добавляется в базу с параметрами `available_in_gorkogo` и
-   `available_in_main_stock_next_day`.
+   `available_in_main_stock`.
 
 4. **Ведется лог ошибок:**
    Если хоть один из товаров содержит ошибки (например, отсутствует обязательный параметр), он не обрабатывается, а

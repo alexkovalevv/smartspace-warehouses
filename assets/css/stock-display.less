@@ -1,0 +1,43 @@
+@main-color: #0063d1;
+@secondary-color: #e7e7e7;
+
+.ssw-stock-info-container {
+  display: flex;
+  margin-bottom: 20px;
+
+  &.ssw-single-column {
+    .ssw-stock-column {
+      flex: 1 1 100%;
+    }
+  }
+
+  .ssw-stock-column {
+    flex: 1;
+
+    h3 {
+      font-size: 18px;
+      font-weight: bold;
+      margin-bottom: 10px;
+      padding-bottom: 5px;
+      color: @main-color;
+      border-bottom: 1px solid @secondary-color;
+    }
+
+    .ssw-custom-stock-info {
+      margin-bottom: 15px;
+      font-size: 16px;
+      color: #333;
+
+      p {
+        margin: 0;
+      }
+
+      .ssw-stock-quantity {
+        color: green; // Подсветка текста "в наличии"
+        &.ssw-out-of-stock {
+          color: red; // Подсветка текста "нет в наличии" красным
+        }
+      }
+    }
+  }
+}

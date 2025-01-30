@@ -74,6 +74,14 @@ class SSW_WarehouseManager {
 
 		// Хук регистрации маршрутов REST API
 		add_action( 'rest_api_init', [ $this, 'register_rest_routes' ] );
+
+		function enqueue_stock_display_styles() {
+			if ( is_product() ) {
+				wp_enqueue_style( 'stock-display-styles', SSW_PLUGIN_URL . '/assets/css/stock-display.css' );
+			}
+		}
+
+		add_action( 'wp_enqueue_scripts', 'enqueue_stock_display_styles' );
 	}
 
 	/**

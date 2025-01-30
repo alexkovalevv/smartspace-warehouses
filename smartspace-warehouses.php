@@ -2,7 +2,7 @@
 /**
  * Plugin Name: SmartSpace warehouses
  * Description: Реализует информацию о наличии товара по складам, в карточке товара.
- * Version: 1.0.1
+ * Version: 1.0.3
  * Author: Alex Kovalev
  * Author URI: https://alexkovalev.pro
  * Text Domain: smartspace-warehouses
@@ -17,7 +17,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'SSW_PLUGIN_VERSION', '1.0.1' );
+define( 'SSW_PLUGIN_VERSION', '1.0.3' );
 define( 'SSW_REST_API_SECRET', '' ); // Заменить на свой
 define( 'SSW_PLUGIN_FILE', __FILE__ );
 define( 'SSW_PLUGIN_BASENAME', plugin_basename( __FILE__ ) );

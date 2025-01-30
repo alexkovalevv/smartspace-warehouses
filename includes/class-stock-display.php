@@ -21,14 +21,21 @@ class SSW_StockDisplay {
 	 *
 	 * @return string HTML-код блока.
 	 */
+
 	public function generate_stock_html( string $title, string $message, string $quantity = '' ): string {
-		$quantity_html = is_numeric( $quantity )
-			? sprintf( '<br>В наличии: <strong>%s</strong>', $this->get_quantity_display( (int) $quantity ) )
-			: ( ! empty( $quantity ) ? sprintf( '<br>%s', $quantity ) : '' );
+		$quantity_html = '';
+
+		if ( is_numeric( $quantity ) ) {
+			$quantity_display = $this->get_quantity_display( (int) $quantity );
+			$quantity_class   = (int) $quantity > 0 ? 'ssw-stock-quantity' : 'ssw-stock-quantity ssw-out-of-stock';
+			$quantity_html    = sprintf( '<br><span class="%s">В наличии: %s</span>', $quantity_class, $quantity_display );
+		} elseif ( ! empty( $quantity ) ) {
+			$quantity_html = sprintf( '<br>%s', $quantity );
+		}
 
 		return sprintf(
-			'<div class="custom-stock-info" style="margin-bottom: 20px; font-size: 16px; color: #333; border-radius: 10px; border:1px solid #444;">
-            <p style="padding:20px;margin:0;">%s, %s%s</p>
+			'<div class="ssw-custom-stock-info">
+            <p><strong>%s</strong>, %s%s</p>
         </div>',
 			esc_html( $title ),
 			$message,
@@ -44,11 +51,53 @@ class SSW_StockDisplay {
 	 * @return string HTML-код с информацией о наличии.
 	 */
 	public function display_stock_info( object $stock_data ): string {
-		$html = $this->generate_gorkogo_stock_info( $stock_data );
-		$html .= $this->generate_main_stock_info( $stock_data );
-		$html .= $this->generate_delivery_info( $stock_data );
+		$pickup_html = $this->generate_gorkogo_stock_info( $stock_data );
+		$pickup_html .= $this->generate_main_stock_info( $stock_data );
 
-		return $html;
+		$delivery_html = $this->generate_delivery_info( $stock_data );
+
+		$columns = [];
+		if ( ! empty( $pickup_html ) ) {
+			$columns[] = [
+				'title'   => 'Самовывоз:',
+				'content' => $pickup_html,
+				'class'   => 'ssw-pickup-column',
+			];
+		}
+		if ( ! empty( $delivery_html ) ) {
+			$columns[] = [
+				'title'   => 'Доставка:',
+				'content' => $delivery_html,
+				'class'   => 'ssw-delivery-column',
+			];
+		}
+
+		if ( empty( $columns ) ) {
+			return '';
+		}
+
+		$columns_html = '';
+		foreach ( $columns as $column ) {
+			$columns_html .= sprintf(
+				'<div class="ssw-stock-column %s">
+                <h3>%s</h3>
+                %s
+            </div>',
+				esc_attr( $column['class'] ),
+				esc_html( $column['title'] ),
+				$column['content']
+			);
+		}
+
+		$container_class = count( $columns ) > 1 ? 'ssw-stock-info-container' : 'ssw-stock-info-container ssw-single-column';
+
+		return sprintf(
+			'<div class="%s">
+            %s
+        </div>',
+			esc_attr( $container_class ),
+			$columns_html
+		);
 	}
 
 	/**
@@ -64,7 +113,7 @@ class SSW_StockDisplay {
 		if ( intval( $stock_data->available_in_gorkogo ) > 0 ) {
 			return $this->generate_stock_html(
 				$title,
-				'<strong style="color:green">можно забрать сейчас</strong>',
+				'(сегодня до 21:00)',
 				$stock_data->available_in_gorkogo
 			);
 		} elseif ( intval( $stock_data->available_in_main_stock ) > 0 ) {
@@ -78,7 +127,7 @@ class SSW_StockDisplay {
 		} else {
 			return $this->generate_stock_html(
 				$title,
-				'<strong style="color:red">Нет в наличии</strong>',
+				'<strong>Нет в наличии</strong>',
 				0
 			);
 		}
@@ -95,7 +144,7 @@ class SSW_StockDisplay {
 		if ( intval( $stock_data->available_in_main_stock ) > 0 ) {
 			return $this->generate_stock_html(
 				'Склад Екатеринбург',
-				'можно заказать самовывоз на следующий день после 16:00 (кроме воскресенья)',
+				'(завтра после 16:00)',
 				$stock_data->available_in_main_stock
 			);
 		}
@@ -114,8 +163,8 @@ class SSW_StockDisplay {
 		$html = '';
 
 		if ( intval( $stock_data->available_in_main_stock ) > 0 ) {
-			$html .= $this->generate_stock_html( 'Доставка при оплате онлайн', $this->get_delivery_message() );
-			$html .= $this->generate_stock_html( 'Доставка с оплатой при получении', $this->get_delivery_message( true ) );
+			$html .= $this->generate_stock_html( 'Оплата онлайн', $this->get_delivery_message() );
+			$html .= $this->generate_stock_html( 'Опалат при получении', $this->get_delivery_message( true ) );
 		}
 
 		return $html;
@@ -129,7 +178,7 @@ class SSW_StockDisplay {
 	private function get_gorkogo_pickup_message(): string {
 		$day_of_week = date( 'w' );
 
-		return ( $day_of_week == 6 ) ? '<strong style="color:orange">можно забрать в пн после 15:00</strong>' : '<strong style="color:orange">можно забрать завтра после 15:00</strong>';
+		return ( $day_of_week == 6 ) ? '(в пн после 15:00)' : '(завтра после 15:00)';
 	}
 
 	/**
@@ -155,13 +204,13 @@ class SSW_StockDisplay {
 
 		if ( $current_day === 6 && $current_hour < 14 ) {
 			// Сегодня суббота и сейчас раньше 14:00
-			return $pay_on_delivery ? 'доставим в пн с 18:00 до 22:00' : 'доставим сегодня, до 22:00';
+			return $pay_on_delivery ? '(в пн с 18:00 до 22:00)' : '(сегодня, до 22:00)';
 		} elseif ( ( $current_day === 6 && $current_hour >= 14 ) || ( $current_day === 0 ) || ( $current_day === 1 && $current_hour < 12 ) ) {
 			// Временной диапазон: с субботы после 14:00 до понедельника 12:00
-			return 'доставим в пн с 18:00 до 22:00';
+			return '(в пн с 18:00 до 22:00)';
 		} elseif ( $current_day >= 1 && $current_day <= 5 ) {
 			// Будние дни после понедельника 12:00
-			return $pay_on_delivery ? 'доставим завтра с 18:00 до 22:00' : 'доставим с 18:00 до 22:00';
+			return $pay_on_delivery ? '(завтра с 18:00 до 22:00)' : '(с 18:00 до 22:00)';
 		}
 
 		return '';

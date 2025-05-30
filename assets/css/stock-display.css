@@ -29,4 +29,108 @@
 .ssw-stock-info-container .ssw-stock-column .ssw-custom-stock-info .ssw-stock-quantity.ssw-out-of-stock {
   color: red;
 }
+.ssw-category-stock-info {
+  text-align: left;
+  font-size: 14px;
+  line-height: 1.4;
+  margin: 10px 0;
+  color: #333;
+}
+.ssw-category-stock-info a.ssw-popup__trigger {
+  color: #1e87f0;
+  text-decoration: none;
+  cursor: pointer;
+  transition: color 0.2s ease;
+}
+.ssw-category-stock-info a.ssw-popup__trigger:hover {
+  color: #0f6ecd;
+  text-decoration: underline;
+}
+.ssw-popup {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: none;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+.ssw-popup.is-visible {
+  display: flex;
+}
+.ssw-popup__overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+}
+.ssw-popup__content {
+  position: relative;
+  background: #fff;
+  padding: 20px;
+  width: 90%;
+  max-width: 900px;
+  border-radius: 8px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+  z-index: 1001;
+  text-align: center;
+}
+@media (max-width: 768px) {
+  .ssw-popup__content {
+    width: 95%;
+    max-width: 100%;
+  }
+}
+@media (max-width: 480px) {
+  .ssw-popup__content {
+    padding: 15px;
+  }
+}
+.ssw-popup__content .ssw-popup__title {
+  font-size: 18px;
+  font-weight: 500;
+  margin-bottom: 15px;
+  color: #333;
+  text-align: left;
+}
+@media (max-width: 480px) {
+  .ssw-popup__content .ssw-popup__title {
+    font-size: 16px;
+  }
+}
+.ssw-popup__content .ssw-popup__text {
+  font-size: 16px;
+  color: #555;
+}
+@media (max-width: 480px) {
+  .ssw-popup__content .ssw-popup__text {
+    font-size: 14px;
+  }
+}
+.ssw-popup__content .ssw-popup__close {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: none;
+  border: none;
+  font-size: 30px;
+  font-weight: bold;
+  color: #333;
+  cursor: pointer;
+  padding: 0 10px;
+}
+.ssw-popup__content .ssw-popup__close:hover {
+  color: #000;
+}
+.ssw-popup__content .ssw-popup__close:focus {
+  outline: none;
+}
+.ssw-popup__content .ssw-stock-info-container {
+  margin-top: 30px;
+  text-align: left;
+}
 /*# sourceMappingURL=stock-display.css.map */

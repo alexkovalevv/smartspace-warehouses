@@ -71,17 +71,25 @@ class SSW_WarehouseManager {
 
 		// Хук отображения складских остатков на странице продукта WooCommerce
 		add_action( 'woocommerce_single_product_summary', [ $this, 'display_product_stock_info' ], 15 );
+		add_action( 'woocommerce_after_list_view_large_item', [ $this, 'display_product_stock_info' ], 41 );
 
 		// Хук регистрации маршрутов REST API
 		add_action( 'rest_api_init', [ $this, 'register_rest_routes' ] );
 
-		function enqueue_stock_display_styles() {
-			if ( is_product() ) {
+		add_action( 'wp_enqueue_scripts', function () {
+			if ( is_product() || is_product_category() ) {
+				wp_enqueue_script( 'jquery' );
 				wp_enqueue_style( 'stock-display-styles', SSW_PLUGIN_URL . '/assets/css/stock-display.css' );
+				wp_enqueue_script( 'category-popup-script', SSW_PLUGIN_URL . '/assets/js/category-popup.js', [ 'jquery' ], SSW_PLUGIN_VERSION, true );
 			}
-		}
+		} );
 
-		add_action( 'wp_enqueue_scripts', 'enqueue_stock_display_styles' );
+		add_action( 'wp_footer', function () {
+			if ( is_product_category() ) {
+				$this->stock_display->render_popup();
+			}
+		} );
+
 	}
 
 	/**
@@ -128,7 +136,7 @@ class SSW_WarehouseManager {
 	 * @return void
 	 */
 	public function display_product_stock_info() {
-		if ( is_product() ) {
+		if ( is_product() || is_product_category() ) {
 			global $product;
 			$sku = $product->get_sku();
 

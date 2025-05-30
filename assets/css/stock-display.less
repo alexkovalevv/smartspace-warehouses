@@ -40,3 +40,125 @@
     }
   }
 }
+
+// Основные стили для контейнера информации о наличии
+.ssw-category-stock-info {
+  text-align: left; // Выравнивание по левому краю
+  font-size: 14px;
+  line-height: 1.4;
+  margin: 10px 0;
+  color: #333;
+
+  // Стили для кликабельной ссылки
+  a.ssw-popup__trigger {
+    color: #1e87f0; // Голубой цвет для ссылки
+    text-decoration: none;
+    cursor: pointer;
+    transition: color 0.2s ease;
+
+    &:hover {
+      color: #0f6ecd; // Темнее при наведении
+      text-decoration: underline;
+    }
+  }
+}
+
+// Основной контейнер попапа
+.ssw-popup {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: none; // Изначально скрыт
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+
+  &.is-visible {
+    display: flex; // Показать при добавлении класса is-visible
+  }
+
+  // Фон-затемнение
+  &__overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5); // Тёмный полупрозрачный фон
+  }
+
+  // Содержимое модального окна
+  &__content {
+    position: relative;
+    background: #fff;
+    padding: 20px;
+    width: 90%; // Занимает 90% ширины экрана на мобильных устройствах
+    max-width: 900px; // Максимальная ширина окна
+    border-radius: 8px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3); // Более заметная тень
+    z-index: 1001;
+    text-align: center;
+
+    // Адаптивность
+    @media (max-width: 768px) {
+      width: 95%; // На планшетах и мобильных устройство занимать 95% ширины
+      max-width: 100%; // Без жесткого ограничения на max-width
+    }
+
+    @media (max-width: 480px) {
+      padding: 15px; // Уменьшение отступов на маленьких экранах
+    }
+
+    // Заголовок окна
+    .ssw-popup__title {
+      font-size: 18px;
+      font-weight: 500;
+      margin-bottom: 15px;
+      color: #333;
+      text-align: left;
+
+      @media (max-width: 480px) {
+        font-size: 16px; // Более мелкий шрифт на мобильных экранах
+      }
+    }
+
+    // Текст окна
+    .ssw-popup__text {
+      font-size: 16px;
+      color: #555;
+
+      @media (max-width: 480px) {
+        font-size: 14px; // Текст мельче на маленьких экранах
+      }
+    }
+
+    // Кнопка закрыть (крестик)
+    .ssw-popup__close {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      background: none;
+      border: none;
+      font-size: 30px; // Увеличенный размер кнопки
+      font-weight: bold;
+      color: #333; // Цвет иконки
+      cursor: pointer;
+      padding: 0 10px;
+
+      &:hover {
+        color: #000; // На hover делаем чуть темнее
+      }
+
+      &:focus {
+        outline: none;
+      }
+    }
+
+    .ssw-stock-info-container {
+      margin-top: 30px;
+      text-align: left;
+    }
+  }
+}

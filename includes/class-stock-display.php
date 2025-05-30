@@ -12,6 +12,12 @@ if ( ! defined( 'ABSPATH' ) ) {
  */
 class SSW_StockDisplay {
 
+	private $current_time;
+
+	public function __construct() {
+		$this->current_time = new DateTime( 'now', new DateTimeZone( 'Asia/Yekaterinburg' ) );
+	}
+
 	/**
 	 * Генерирует HTML-блок с информацией о наличии товара.
 	 *
@@ -21,7 +27,6 @@ class SSW_StockDisplay {
 	 *
 	 * @return string HTML-код блока.
 	 */
-
 	public function generate_stock_html( string $title, string $message, string $quantity = '' ): string {
 		$quantity_html = '';
 
@@ -51,6 +56,31 @@ class SSW_StockDisplay {
 	 * @return string HTML-код с информацией о наличии.
 	 */
 	public function display_stock_info( object $stock_data ): string {
+		// Проверка на предзаказ, когда нет остатков
+		if ( intval( $stock_data->available_in_gorkogo ) <= 0 &&
+		     intval( $stock_data->available_in_main_stock ) <= 0 &&
+		     intval( $stock_data->pre_order ) === 1 ) {
+
+			// Формируем дату доступности (сегодня + 10 дней)
+			$availability_date = clone $this->current_time;
+			$availability_date->modify( '+10 days' );
+			$formatted_date = $availability_date->format( 'd.m.Y' );
+
+			// Возвращаем только колонку предзаказа
+			return sprintf(
+				'<div class="ssw-stock-info-container ssw-single-column">
+					<div class="ssw-stock-column ssw-preorder-column">
+						<h3>Предзаказ:</h3>
+						<div class="ssw-custom-stock-info">
+							<p><strong>Доступно с %s</strong></p>
+						</div>
+					</div>
+				</div>',
+				esc_html( $formatted_date )
+			);
+		}
+
+		// Стандартное отображение для обычных товаров
 		$pickup_html = $this->generate_gorkogo_stock_info( $stock_data );
 		$pickup_html .= $this->generate_main_stock_info( $stock_data );
 
@@ -116,13 +146,14 @@ class SSW_StockDisplay {
 				'(сегодня до 21:00)',
 				$stock_data->available_in_gorkogo
 			);
-		} elseif ( intval( $stock_data->available_in_main_stock ) > 0 ) {
-			$message = $this->get_gorkogo_pickup_message();
+		} elseif ( intval( $stock_data->available_in_main_stock ) > 0 ) { // Если в магазине на Горького нет в наличии
+			$current_day = intval( $this->current_time->format( 'w' ) ); // Номер дня недели (0 - воскресенье, 6 - суббота)
+			$message     = ( $current_day == 6 ) ? '(в пн после 15:00)' : '(завтра после 15:00)';
 
 			return $this->generate_stock_html(
 				$title,
 				$message,
-				$stock_data->available_in_main_stock
+				$stock_data->available_in_gorkogo
 			);
 		} else {
 			return $this->generate_stock_html(
@@ -163,22 +194,11 @@ class SSW_StockDisplay {
 		$html = '';
 
 		if ( intval( $stock_data->available_in_main_stock ) > 0 ) {
-			$html .= $this->generate_stock_html( 'Оплата онлайн', $this->get_delivery_message() );
-			$html .= $this->generate_stock_html( 'Опалат при получении', $this->get_delivery_message( true ) );
+			$html .= $this->generate_stock_html( 'Оплата онлайн', $this->get_online_payment_message( $stock_data ) );
+			$html .= $this->generate_stock_html( 'Оплата при получении', $this->get_pay_on_delivery_message() );
 		}
 
 		return $html;
-	}
-
-	/**
-	 * Возвращает сообщение о возможности забрать товар в магазине "Горького 35".
-	 *
-	 * @return string Сообщение.
-	 */
-	private function get_gorkogo_pickup_message(): string {
-		$day_of_week = date( 'w' );
-
-		return ( $day_of_week == 6 ) ? '(в пн после 15:00)' : '(завтра после 15:00)';
 	}
 
 	/**
@@ -193,24 +213,49 @@ class SSW_StockDisplay {
 	}
 
 	/**
-	 * Возвращает сообщение о доставке в зависимости от текущего времени.
+	 * Возвращает сообщение о доставке для онлайн-оплаты.
 	 *
 	 * @return string Сообщение о доставке.
 	 */
-	private function get_delivery_message( $pay_on_delivery = false ): string {
-		$current_time = new DateTime( 'now', new DateTimeZone( 'Asia/Yekaterinburg' ) );
-		$current_hour = intval( $current_time->format( 'H' ) );
-		$current_day  = intval( $current_time->format( 'w' ) ); // Номер дня недели (0 - воскресенье, 6 - суббота)
+	private function get_online_payment_message( object $stock_data ): string {
+		$current_hour = intval( $this->current_time->format( 'H' ) );
+		$current_day  = intval( $this->current_time->format( 'w' ) ); // Номер дня недели (0 - воскресенье, 6 - суббота)
+
+		if ( intval( $stock_data->available_in_gorkogo ) > 0 ) {
+			if ( $current_hour <= 20 ) {
+				return '(сегодня до 22:00)';
+			} else {
+				return '(завтра до 22:00)';
+			}
+		} else {
+			if ( $current_hour <= 18 ) {
+				return '(сегодня до 22:00)';
+			} elseif ( $current_day != 0 ) { // Не воскресенье
+				return '(завтра до 22:00)';
+			} else { // Воскресенье
+				return '(в пн до 22:00)';
+			}
+		}
+	}
+
+	/**
+	 * Возвращает сообщение о доставке для оплаты при получении.
+	 *
+	 * @return string Сообщение о доставке.
+	 */
+	private function get_pay_on_delivery_message(): string {
+		$current_hour = intval( $this->current_time->format( 'H' ) );
+		$current_day  = intval( $this->current_time->format( 'w' ) ); // Номер дня недели (0 - воскресенье, 6 - суббота)
 
 		if ( $current_day === 6 && $current_hour < 14 ) {
 			// Сегодня суббота и сейчас раньше 14:00
-			return $pay_on_delivery ? '(в пн с 18:00 до 22:00)' : '(сегодня, до 22:00)';
+			return '(в пн с 18:00 до 22:00)';
 		} elseif ( ( $current_day === 6 && $current_hour >= 14 ) || ( $current_day === 0 ) || ( $current_day === 1 && $current_hour < 12 ) ) {
 			// Временной диапазон: с субботы после 14:00 до понедельника 12:00
 			return '(в пн с 18:00 до 22:00)';
 		} elseif ( $current_day >= 1 && $current_day <= 5 ) {
 			// Будние дни после понедельника 12:00
-			return $pay_on_delivery ? '(завтра с 18:00 до 22:00)' : '(с 18:00 до 22:00)';
+			return '(завтра с 18:00 до 22:00)';
 		}
 
 		return '';

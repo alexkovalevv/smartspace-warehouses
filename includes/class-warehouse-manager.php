@@ -32,12 +32,19 @@ class SSW_WarehouseManager {
 	 */
 	private SSW_RestAPIHandler $rest_api_handler;
 
-	/**
-	 * Импортёр данных из файлов (например, XLS), используется для тестового импорта.
-	 *
-	 * @var SSW_FileImporter
-	 */
-	private SSW_FileImporter $file_importer;
+ /**
+  * Импортёр данных из файлов (например, XLS), используется для тестового импорта.
+  *
+  * @var SSW_FileImporter
+  */
+ private SSW_FileImporter $file_importer;
+
+ /**
+  * Обработчик синхронизации складских остатков с WooCommerce.
+  *
+  * @var SSW_WooCommerceSync
+  */
+ private SSW_WooCommerceSync $woocommerce_sync;
 
 	/**
 	 * Конструктор класса.
@@ -48,6 +55,7 @@ class SSW_WarehouseManager {
 		$this->stock_display    = new SSW_StockDisplay();
 		$this->rest_api_handler = new SSW_RestAPIHandler( $this->database_handler );
 		$this->file_importer    = new SSW_FileImporter();
+		$this->woocommerce_sync = new SSW_WooCommerceSync( $this->database_handler );
 
 		$this->init_hooks();
 	}
